@@ -19,7 +19,7 @@ impl TimeType {
     pub fn to_date_time(&self, time: String) -> DateTime<Local> {
         match self {
             TimeType::E => epoch_millis::from(time.parse::<i64>().unwrap()),
-            TimeType::R => rfc3339::from(time),
+            TimeType::R => rfc3339::from(time).unwrap(),
             TimeType::S => string::from(time),
         }
     }
@@ -32,12 +32,6 @@ impl TimeType {
         }
     }
 }
-
-pub fn handle(time: String, it: TimeType, ot: TimeType) -> String {
-    let parsed_time = it.to_date_time(time);
-    return ot.to_formatted(parsed_time).to_string();
-}
-
 pub enum Formatted {
     EpochMillis(i64),
     RFC3339(String),
@@ -52,4 +46,25 @@ impl Formatted {
             Formatted::String(time) => time.to_string(),
         }
     }
+}
+
+pub fn parse_time(time: String) -> DateTime<Local> {
+    let e = time.parse::<i64>();
+    if e.is_ok() {
+        let er = epoch_millis::from(e.unwrap());
+        return er;
+    }
+    let r = rfc3339::from(time.clone());
+    if r.is_ok() {
+        return r.unwrap();
+    }
+
+    let s = string::from(time);
+
+    return s;
+}
+
+pub fn handle(time: String, it: TimeType, ot: TimeType) -> String {
+    let parsed_time = parse_time(time);
+    return ot.to_formatted(parsed_time).to_string();
 }
