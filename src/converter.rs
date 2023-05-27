@@ -6,7 +6,7 @@ pub mod rfc3339;
 pub mod string;
 
 #[derive(ValueEnum, Clone, Debug)]
-pub enum TimeType {
+pub enum TimeFormat {
     /// epoch millis
     E,
     /// RFC3339
@@ -15,20 +15,12 @@ pub enum TimeType {
     S,
 }
 
-impl TimeType {
-    pub fn to_date_time(&self, time: String) -> DateTime<Local> {
-        match self {
-            TimeType::E => epoch_millis::from(time.parse::<i64>().unwrap()),
-            TimeType::R => rfc3339::from(time).unwrap(),
-            TimeType::S => string::from(time),
-        }
-    }
-
+impl TimeFormat {
     pub fn to_formatted(&self, time: DateTime<Local>) -> Formatted {
         match self {
-            TimeType::E => Formatted::EpochMillis(epoch_millis::format(time)),
-            TimeType::R => Formatted::RFC3339(rfc3339::format(time)),
-            TimeType::S => Formatted::String(string::format(time)),
+            TimeFormat::E => Formatted::EpochMillis(epoch_millis::format(time)),
+            TimeFormat::R => Formatted::RFC3339(rfc3339::format(time)),
+            TimeFormat::S => Formatted::String(string::format(time)),
         }
     }
 }
@@ -64,7 +56,7 @@ pub fn parse_time(time: String) -> DateTime<Local> {
     return s;
 }
 
-pub fn handle(time: String, it: TimeType, ot: TimeType) -> String {
+pub fn handle(time: String, ot: TimeFormat) -> String {
     let parsed_time = parse_time(time);
     return ot.to_formatted(parsed_time).to_string();
 }

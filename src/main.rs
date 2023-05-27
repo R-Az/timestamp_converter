@@ -19,13 +19,13 @@ struct Args {
 
     /// time type from
     #[arg(short, long)]
-    #[clap(value_enum, default_value_t=converter::TimeType::S)]
-    output_type: converter::TimeType,
+    #[clap(value_enum, default_value_t=converter::TimeFormat::S)]
+    output_type: converter::TimeFormat,
 
     /// time type to
     #[arg(short, long)]
-    #[clap(value_enum, default_value_t=converter::TimeType::E)]
-    input_type: converter::TimeType,
+    #[clap(value_enum, default_value_t=converter::TimeFormat::E)]
+    input_type: converter::TimeFormat,
 }
 
 fn main() {
@@ -41,12 +41,6 @@ fn main() {
 
     let label: &str = if is_time_empty { "now" } else { "" };
 
-    let it = if is_time_empty {
-        converter::TimeType::S
-    } else {
-        args.input_type
-    };
-
-    let formatted = converter::handle(time.clone(), it, args.output_type);
+    let formatted = converter::handle(time.clone(), args.output_type);
     println!("{} {}-> {}", time, label, formatted);
 }
