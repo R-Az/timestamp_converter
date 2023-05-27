@@ -17,21 +17,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_from_zero() {
+    fn test_parse_zero() {
         let result = parse("1970-01-01T09:00:00+09:00".to_owned());
         let expected = Local.timestamp_opt(0, 0).unwrap();
         assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
-    fn test_from() {
+    fn test_parse() {
         let result = parse("2023-05-18T00:00:00+09:00".to_owned());
         let expected = Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap();
         assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
-    fn test_from_err() {
+    fn test_parse_err() {
         let result = parse("xxxxxxx".to_owned());
         assert!(result.is_err())
     }
