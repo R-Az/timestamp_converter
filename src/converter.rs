@@ -16,31 +16,21 @@ pub enum TimeFormat {
 }
 
 impl TimeFormat {
-    pub fn to_formatted(&self, time: DateTime<Local>) -> Formatted {
+    pub fn format(&self, time: DateTime<Local>) -> String {
         match self {
-            TimeFormat::E => Formatted::EpochMillis(epoch_millis::format(time)),
-            TimeFormat::R => Formatted::RFC3339(rfc3339::format(time)),
-            TimeFormat::S => Formatted::String(string::format(time)),
-        }
-    }
-}
-pub enum Formatted {
-    EpochMillis(i64),
-    RFC3339(String),
-    String(String),
-}
-
-impl Formatted {
-    pub fn to_string(&self) -> String {
-        match self {
-            Formatted::EpochMillis(time) => time.to_string(),
-            Formatted::RFC3339(time) => time.to_string(),
-            Formatted::String(time) => time.to_string(),
+            TimeFormat::E => epoch_millis::format(time).to_string(),
+            TimeFormat::R => rfc3339::format(time),
+            TimeFormat::S => string::format(time),
         }
     }
 }
 
-pub fn parse_time(time: String) -> DateTime<Local> {
+pub fn handle(time: String, ot: TimeFormat) -> String {
+    let parsed_time = parse_time(time);
+    return ot.format(parsed_time);
+}
+
+fn parse_time(time: String) -> DateTime<Local> {
     let e = time.parse::<i64>();
     if e.is_ok() {
         let er = epoch_millis::from(e.unwrap());
@@ -54,9 +44,4 @@ pub fn parse_time(time: String) -> DateTime<Local> {
     let s = string::from(time);
 
     return s;
-}
-
-pub fn handle(time: String, ot: TimeFormat) -> String {
-    let parsed_time = parse_time(time);
-    return ot.to_formatted(parsed_time).to_string();
 }
