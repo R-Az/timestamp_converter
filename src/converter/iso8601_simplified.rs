@@ -1,12 +1,11 @@
 // ISO8601からtimezoneを省略したフォーマット
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Local, ParseError};
 
-pub fn from(time: String) -> DateTime<Local> {
+pub fn parse(time: String) -> Result<DateTime<Local>, ParseError> {
     let tz = Local::now().format("%z").to_string();
 
-    return DateTime::parse_from_str(&format!("{time} {tz}"), "%Y-%m-%d %H:%M:%S %z")
-        .unwrap()
-        .with_timezone(&Local);
+    let p = DateTime::parse_from_str(&format!("{time} {tz}"), "%Y-%m-%d %H:%M:%S %z")?;
+    return Ok(p.with_timezone(&Local));
 }
 
 pub fn format(time: DateTime<Local>) -> String {
@@ -20,19 +19,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_from_zero() {
-        let tz = Local::now().format("%z").to_string();
-        print!("{}", tz);
-        // let result = from("1970-01-01 09:00:00".to_owned());
-        // let expected = Local.timestamp_opt(0, 0).unwrap();
-        // assert_eq!(result, expected);
+    fn test_parse_zero() {
+        let result = parse("1970-01-01 09:00:00".to_owned());
+        let expected = Local.timestamp_opt(0, 0).unwrap();
+        assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
-    fn test_from_string() {
-        let result = from("2023-05-18 00:00:00".to_owned());
+    fn test_parse() {
+        let result = parse("2023-05-18 00:00:00".to_owned());
         let expected = Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap();
-        assert_eq!(result, expected);
+        assert_eq!(result.unwrap(), expected);
+    }
+
+    #[test]
+    fn test_parse_err() {
+        let result = parse("xxxxx".to_owned());
+        assert!(result.is_err());
     }
 
     #[test]
@@ -43,7 +46,7 @@ mod tests {
     }
 
     #[test]
-    fn test_format_string() {
+    fn test_format() {
         let result = format(Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap());
         let expected = "2023-05-18 00:00:00";
         assert_eq!(result, expected);

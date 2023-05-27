@@ -1,3 +1,5 @@
+use core::panic;
+
 use chrono::{DateTime, Local};
 use clap::ValueEnum;
 
@@ -41,7 +43,10 @@ fn parse_time(time: String) -> DateTime<Local> {
         return r.unwrap();
     }
 
-    let s = iso8601_simplified::from(time);
+    let s = iso8601_simplified::parse(time.clone());
+    if s.is_ok() {
+        return s.unwrap();
+    }
 
-    return s;
+    panic!("parse error. illegal format. {}", time)
 }
