@@ -2,32 +2,32 @@ use chrono::{DateTime, Local};
 use clap::ValueEnum;
 
 pub mod epoch_millis;
+pub mod iso8601_simplified;
 pub mod rfc3339;
-pub mod string;
 
 #[derive(ValueEnum, Clone, Debug)]
 pub enum TimeFormat {
-    /// epoch millis
+    /// epoch millis 1684805123000
     E,
-    /// RFC3339
+    /// RFC3339 2023-05-18T00:00:00+09:00
     R,
-    /// YYYY-MM-DD HH:mm:ss
+    /// ISO8601 simplified YYYY-MM-DD hh:mm:ss (ISO8601からtimezoneを省略したフォーマット)
     S,
 }
 
 impl TimeFormat {
-    pub fn format(&self, time: DateTime<Local>) -> String {
+    pub fn handle(&self, time: DateTime<Local>) -> String {
         match self {
             TimeFormat::E => epoch_millis::format(time).to_string(),
             TimeFormat::R => rfc3339::format(time),
-            TimeFormat::S => string::format(time),
+            TimeFormat::S => iso8601_simplified::format(time),
         }
     }
 }
 
-pub fn handle(time: String, ot: TimeFormat) -> String {
+pub fn handle(time: String, format: TimeFormat) -> String {
     let parsed_time = parse_time(time);
-    return ot.format(parsed_time);
+    return format.handle(parsed_time);
 }
 
 fn parse_time(time: String) -> DateTime<Local> {
@@ -41,7 +41,7 @@ fn parse_time(time: String) -> DateTime<Local> {
         return r.unwrap();
     }
 
-    let s = string::from(time);
+    let s = iso8601_simplified::from(time);
 
     return s;
 }

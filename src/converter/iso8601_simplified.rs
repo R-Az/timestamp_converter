@@ -1,3 +1,4 @@
+// ISO8601からtimezoneを省略したフォーマット
 use chrono::{DateTime, Local};
 
 pub fn from(time: String) -> DateTime<Local> {

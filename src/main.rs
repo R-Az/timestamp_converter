@@ -17,15 +17,10 @@ struct Args {
     #[arg(value_name = "time", help = "format timestamp")]
     time: Option<String>,
 
-    /// time type from
+    /// convert format
     #[arg(short, long)]
     #[clap(value_enum, default_value_t=converter::TimeFormat::S)]
-    output_type: converter::TimeFormat,
-
-    /// time type to
-    #[arg(short, long)]
-    #[clap(value_enum, default_value_t=converter::TimeFormat::E)]
-    input_type: converter::TimeFormat,
+    format: converter::TimeFormat,
 }
 
 fn main() {
@@ -34,13 +29,13 @@ fn main() {
     let is_time_empty = args.time.is_none();
 
     let time = if is_time_empty {
-        converter::string::format(Local::now())
+        converter::iso8601_simplified::format(Local::now())
     } else {
         args.time.unwrap()
     };
 
     let label: &str = if is_time_empty { "now" } else { "" };
 
-    let formatted = converter::handle(time.clone(), args.output_type);
+    let formatted = converter::handle(time.clone(), args.format);
     println!("{} {}-> {}", time, label, formatted);
 }
