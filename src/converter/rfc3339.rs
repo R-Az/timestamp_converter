@@ -1,6 +1,6 @@
 use chrono::{DateTime, Local, ParseError};
 
-pub fn from(time: String) -> Result<DateTime<Local>, ParseError> {
+pub fn parse(time: String) -> Result<DateTime<Local>, ParseError> {
     let p = DateTime::parse_from_rfc3339(&time)?;
 
     return Ok(p.with_timezone(&Local));
@@ -18,21 +18,21 @@ mod tests {
 
     #[test]
     fn test_from_zero() {
-        let result = from("1970-01-01T09:00:00+09:00".to_owned());
+        let result = parse("1970-01-01T09:00:00+09:00".to_owned());
         let expected = Local.timestamp_opt(0, 0).unwrap();
         assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
     fn test_from() {
-        let result = from("2023-05-18T00:00:00+09:00".to_owned());
+        let result = parse("2023-05-18T00:00:00+09:00".to_owned());
         let expected = Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap();
         assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
     fn test_from_err() {
-        let result = from("xxxxxxx".to_owned());
+        let result = parse("xxxxxxx".to_owned());
         assert!(result.is_err())
     }
 

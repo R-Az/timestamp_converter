@@ -38,7 +38,7 @@ fn parse_time(time: String) -> DateTime<Local> {
         let er = epoch_millis::from(e.unwrap());
         return er;
     }
-    let r = rfc3339::from(time.clone());
+    let r = rfc3339::parse(time.clone());
     if r.is_ok() {
         return r.unwrap();
     }
