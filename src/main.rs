@@ -1,6 +1,5 @@
 use std::env;
 
-use chrono::Local;
 use clap::Parser;
 mod converter;
 
@@ -29,16 +28,6 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let is_time_empty = args.time.is_none();
-
-    let time = if is_time_empty {
-        converter::iso8601_simplified::format(Local::now())
-    } else {
-        args.time.unwrap()
-    };
-
-    let label: &str = if is_time_empty { "now" } else { "" };
-
-    let formatted = converter::handle(time.clone(), args.format);
-    println!("{} {}-> {}", time, label, formatted);
+    let result = converter::handle(args.time, args.format);
+    println!("{}", result);
 }
