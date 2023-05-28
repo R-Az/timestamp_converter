@@ -52,3 +52,37 @@ fn parse_time(time: String) -> DateTime<Local> {
 
     panic!("parse error. illegal format. {}", time)
 }
+
+#[cfg(test)]
+mod tests {
+    use chrono::TimeZone;
+
+    use super::*;
+
+    #[test]
+    fn test_parse_time_rfc3339() {
+        let result = parse_time("2023-05-18T00:00:00+09:00".to_owned());
+        let expected = Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_parse_time_iso8601_simplified() {
+        let result = parse_time("2023-05-18 00:00:00".to_owned());
+        let expected = Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_parse_time_epoch_millis() {
+        let result = parse_time("1684335600000".to_owned());
+        let expected = Local.with_ymd_and_hms(2023, 05, 18, 00, 00, 00).unwrap();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_parse_time_err() {
+        parse_time("xxxxxxx".to_owned());
+    }
+}
