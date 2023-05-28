@@ -1,3 +1,4 @@
+use crate::Args;
 use chrono::{DateTime, Local};
 use clap::ValueEnum;
 use core::panic;
@@ -6,7 +7,7 @@ pub mod epoch_millis;
 pub mod iso8601_simplified;
 pub mod rfc3339;
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug, PartialEq)]
 pub enum TimeFormat {
     /// epoch millis 1684805123000
     E,
@@ -26,11 +27,11 @@ impl TimeFormat {
     }
 }
 
-pub fn handle(origin_time: Option<String>, format: TimeFormat) -> String {
-    let args = convert_args(origin_time);
-    let parsed_time = parse_time(args.time.clone());
-    let formatted = format.handle(parsed_time);
-    return generate_result(args, formatted);
+pub fn handle(args: Args) -> String {
+    let convert_args = convert_args(args);
+    let parsed_time = parse_time(convert_args.time.clone());
+    let formatted = convert_args.format.handle(parsed_time);
+    return generate_result(convert_args, formatted);
 }
 
 fn parse_time(time: String) -> DateTime<Local> {
@@ -90,14 +91,16 @@ mod tests_parse_time {
 struct ConvertArgs {
     time: String,
     label: String,
+    format: TimeFormat,
+    only_formatted: bool,
 }
-fn convert_args(origin_time: Option<String>) -> ConvertArgs {
-    let is_time_empty = origin_time.is_none();
+fn convert_args(args: Args) -> ConvertArgs {
+    let is_time_empty = args.time.is_none();
 
     let time = if is_time_empty {
         iso8601_simplified::format(Local::now())
     } else {
-        origin_time.unwrap()
+        args.time.unwrap()
     };
 
     let label: &str = if is_time_empty { " now" } else { "" };
@@ -105,6 +108,8 @@ fn convert_args(origin_time: Option<String>) -> ConvertArgs {
     return ConvertArgs {
         time: time,
         label: label.to_string(),
+        format: args.format,
+        only_formatted: args.only_formatted,
     };
 }
 
@@ -114,20 +119,32 @@ mod tests_convert_args {
 
     #[test]
     fn test_convert_args_now() {
-        let result = convert_args(None);
+        let result = convert_args(Args {
+            time: None,
+            format: TimeFormat::S,
+            only_formatted: false,
+        });
         let expected = ConvertArgs {
             time: iso8601_simplified::format(Local::now()),
             label: " now".to_string(),
+            format: TimeFormat::S,
+            only_formatted: false,
         };
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_convert_args_time() {
-        let result = convert_args(Some("2023-05-18 00:00:00".to_owned()));
+        let result = convert_args(Args {
+            time: Some("2023-05-18 00:00:00".to_string()),
+            format: TimeFormat::E,
+            only_formatted: false,
+        });
         let expected = ConvertArgs {
             time: "2023-05-18 00:00:00".to_string(),
             label: "".to_string(),
+            format: TimeFormat::E,
+            only_formatted: false,
         };
         assert_eq!(result, expected);
     }
@@ -147,6 +164,8 @@ mod tests_generate_result {
             ConvertArgs {
                 time: "2023-05-18 00:00:00".to_string(),
                 label: " now".to_string(),
+                format: TimeFormat::E,
+                only_formatted: false,
             },
             "1684335600000".to_string(),
         );
