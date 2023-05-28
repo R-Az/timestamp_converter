@@ -29,8 +29,9 @@ impl TimeFormat {
 
 pub fn handle(origin_time: Option<String>, format: TimeFormat) -> String {
     let args = convert_args(origin_time);
-    let parsed_time = parse_time(args.time);
-    return format.handle(parsed_time);
+    let parsed_time = parse_time(args.time.clone());
+    let formatted = format.handle(parsed_time);
+    return generate_result(formatted, args);
 }
 
 fn parse_time(time: String) -> DateTime<Local> {
@@ -52,27 +53,6 @@ fn parse_time(time: String) -> DateTime<Local> {
     }
 
     panic!("parse error. illegal format. {}", time)
-}
-#[derive(Debug, PartialEq)]
-struct ConvertArgs {
-    time: String,
-    label: String,
-}
-fn convert_args(origin_time: Option<String>) -> ConvertArgs {
-    let is_time_empty = origin_time.is_none();
-
-    let time = if is_time_empty {
-        iso8601_simplified::format(Local::now())
-    } else {
-        origin_time.unwrap()
-    };
-
-    let label: &str = if is_time_empty { "now" } else { "" };
-
-    return ConvertArgs {
-        time: time,
-        label: label.to_string(),
-    };
 }
 #[cfg(test)]
 mod tests_parse_time {
@@ -107,6 +87,28 @@ mod tests_parse_time {
     }
 }
 
+#[derive(Debug, PartialEq, Clone)]
+struct ConvertArgs {
+    time: String,
+    label: String,
+}
+fn convert_args(origin_time: Option<String>) -> ConvertArgs {
+    let is_time_empty = origin_time.is_none();
+
+    let time = if is_time_empty {
+        iso8601_simplified::format(Local::now())
+    } else {
+        origin_time.unwrap()
+    };
+
+    let label: &str = if is_time_empty { " now" } else { "" };
+
+    return ConvertArgs {
+        time: time,
+        label: label.to_string(),
+    };
+}
+
 #[cfg(test)]
 mod tests_convert_args {
     use super::*;
@@ -116,7 +118,7 @@ mod tests_convert_args {
         let result = convert_args(None);
         let expected = ConvertArgs {
             time: iso8601_simplified::format(Local::now()),
-            label: "now".to_string(),
+            label: " now".to_string(),
         };
         assert_eq!(result, expected);
     }
@@ -128,6 +130,28 @@ mod tests_convert_args {
             time: "2023-05-18 00:00:00".to_string(),
             label: "".to_string(),
         };
+        assert_eq!(result, expected);
+    }
+}
+
+fn generate_result(formatted: String, args: ConvertArgs) -> String {
+    return format!("{}{} -> {}", args.time, args.label, formatted);
+}
+
+#[cfg(test)]
+mod tests_generate_result {
+    use super::*;
+
+    #[test]
+    fn test_generate_result() {
+        let result = generate_result(
+            "2023-05-18 00:00:00".to_string(),
+            ConvertArgs {
+                time: "2023-05-18 00:00:00".to_string(),
+                label: " now".to_string(),
+            },
+        );
+        let expected = "2023-05-18 00:00:00 now -> 1684335600000".to_string();
         assert_eq!(result, expected);
     }
 }
