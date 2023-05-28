@@ -30,7 +30,7 @@ pub fn handle(origin_time: Option<String>, format: TimeFormat) -> String {
     let args = convert_args(origin_time);
     let parsed_time = parse_time(args.time.clone());
     let formatted = format.handle(parsed_time);
-    return generate_result(formatted, args);
+    return generate_result(args, formatted);
 }
 
 fn parse_time(time: String) -> DateTime<Local> {
@@ -133,7 +133,7 @@ mod tests_convert_args {
     }
 }
 
-fn generate_result(formatted: String, args: ConvertArgs) -> String {
+fn generate_result(args: ConvertArgs, formatted: String) -> String {
     return format!("{}{} -> {}", args.time, args.label, formatted);
 }
 
@@ -144,11 +144,11 @@ mod tests_generate_result {
     #[test]
     fn test_generate_result() {
         let result = generate_result(
-            "1684335600000".to_string(),
             ConvertArgs {
                 time: "2023-05-18 00:00:00".to_string(),
                 label: " now".to_string(),
             },
+            "1684335600000".to_string(),
         );
         let expected = "2023-05-18 00:00:00 now -> 1684335600000".to_string();
         assert_eq!(result, expected);
