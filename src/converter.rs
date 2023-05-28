@@ -35,8 +35,10 @@ pub fn handle(time: String, format: TimeFormat) -> String {
 fn parse_time(time: String) -> DateTime<Local> {
     let e = time.parse::<i64>();
     if e.is_ok() {
-        let er = epoch_millis::from(e.unwrap());
-        return er;
+        let er = epoch_millis::parse(e.unwrap());
+        if er.is_ok() {
+            return er.unwrap();
+        }
     }
     let r = rfc3339::parse(time.clone());
     if r.is_ok() {

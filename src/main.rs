@@ -14,7 +14,10 @@ mod converter;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// The time
-    #[arg(value_name = "time", help = "format timestamp")]
+    #[arg(
+        value_name = "time",
+        help = "time to convert. if not specified, use now"
+    )]
     time: Option<String>,
 
     /// convert format
