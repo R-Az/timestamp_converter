@@ -1,7 +1,6 @@
-use core::panic;
-
 use chrono::{DateTime, Local};
 use clap::ValueEnum;
+use core::panic;
 
 pub mod epoch_millis;
 pub mod iso8601_simplified;
@@ -145,7 +144,7 @@ mod tests_generate_result {
     #[test]
     fn test_generate_result() {
         let result = generate_result(
-            "2023-05-18 00:00:00".to_string(),
+            "1684335600000".to_string(),
             ConvertArgs {
                 time: "2023-05-18 00:00:00".to_string(),
                 label: " now".to_string(),

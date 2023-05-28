@@ -1,6 +1,5 @@
-use std::env;
-
 use clap::Parser;
+use std::env;
 mod converter;
 
 #[derive(Parser, Debug)]
